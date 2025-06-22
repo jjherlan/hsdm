@@ -3,6 +3,13 @@
 #fig.cap = "Figure 9.1: Observed and potential distribution of the red fox using a rectilinear envelope model (sre function in the biomod2 package). 
 #The potential distributions differ by the use of different percentiles to delineate the envelope. In both maps, black=presence, light gray= absence.
 
+library(mda)
+library(gam)
+library(earth)
+library(maxnet)
+library(randomForest)
+library(xgboost)
+install.packages("xgboost")
 library(biomod2) 
 
 # install.packages("biomod2", repos="http://R-Forge.R-project.org")
