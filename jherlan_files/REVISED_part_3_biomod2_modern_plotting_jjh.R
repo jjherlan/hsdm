@@ -10,8 +10,7 @@ library(dplyr)        # For data manipulation
 library(viridis)      # For color scales
 
 # Load the species and environmental datasets
-# mammals_data <- read.csv("mammals_and_bioclim_table.csv", row.names = 1)
-mammals_data <- read.csv("data/tabular/species/mammals_and_bioclim_table.csv", row.names = 1)
+mammals_data <- read.csv("mammals_and_bioclim_table.csv", row.names = 1)
 
 head(mammals_data)
 print(paste("Dataset contains", nrow(mammals_data), "observations"))
@@ -54,13 +53,18 @@ create_distribution_plots <- function(data, coords, predictions, titles) {
   
   for (i in 1:length(predictions)) {
     
+    # Ensure predictions are properly formatted as vectors
+    pred_values <- as.vector(predictions[[i]])
+    
     # Prepare data for plotting
     plot_data <- data.frame(
       X = coords[,"X_WGS84"],
       Y = coords[,"Y_WGS84"],
-      Original = data$VulpesVulpes,
-      Predicted = predictions[[i]]
+      Predicted = pred_values
     )
+    
+    # Remove any NA values
+    plot_data <- plot_data[complete.cases(plot_data), ]
     
     # Create the plot
     p <- ggplot(plot_data, aes(x = X, y = Y)) +
@@ -106,17 +110,46 @@ plot_titles <- c(
   "BIOCLIM 95%"
 )
 
-# Generate the plots
-distribution_plots <- create_distribution_plots(
-  data = mammals_data,
-  coords = mammals_data[,c("X_WGS84", "Y_WGS84")],
-  predictions = predictions_list,
-  titles = plot_titles
-)
-
-# Display plots in a 2x2 layout
-library(gridExtra)
-grid.arrange(grobs = distribution_plots, ncol = 2, nrow = 2)
+# Generate the plots with error handling
+tryCatch({
+  distribution_plots <- create_distribution_plots(
+    data = mammals_data,
+    coords = mammals_data[,c("X_WGS84", "Y_WGS84")],
+    predictions = predictions_list,
+    titles = plot_titles
+  )
+  
+  # Display plots in a 2x2 layout
+  library(gridExtra)
+  grid.arrange(grobs = distribution_plots, ncol = 2, nrow = 2)
+  
+}, error = function(e) {
+  cat("Error in ggplot creation:", e$message, "\n")
+  cat("Falling back to base R plotting...\n")
+  
+  # Alternative: Create plots using base R
+  par(mfrow = c(2, 2))
+  
+  for (i in 1:length(predictions_list)) {
+    coords <- mammals_data[,c("X_WGS84", "Y_WGS84")]
+    pred_vals <- as.vector(predictions_list[[i]])
+    colors <- c("lightgray", "black")[pred_vals + 1]
+    
+    plot(coords[,"X_WGS84"], coords[,"Y_WGS84"],
+         col = colors, pch = 19, cex = 0.3,
+         main = plot_titles[i],
+         xlab = "Longitude (WGS84)",
+         ylab = "Latitude (WGS84)",
+         asp = 1)
+    
+    legend("topright", 
+           legend = c("Absence", "Presence"),
+           col = c("lightgray", "black"),
+           pch = 19, cex = 0.7)
+  }
+  
+  par(mfrow = c(1, 1))
+})
 
 # =============================================================================
 # STEP 4: Alternative plotting using base R (similar to original level.plot)
