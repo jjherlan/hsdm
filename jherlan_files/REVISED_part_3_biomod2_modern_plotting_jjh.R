@@ -10,7 +10,8 @@ library(dplyr)        # For data manipulation
 library(viridis)      # For color scales
 
 # Load the species and environmental datasets
-mammals_data <- read.csv("mammals_and_bioclim_table.csv", row.names = 1)
+# mammals_data <- read.csv("mammals_and_bioclim_table.csv", row.names = 1)
+mammals_data <- read.csv("data/tabular/species/mammals_and_bioclim_table.csv", row.names = 1)
 
 head(mammals_data)
 print(paste("Dataset contains", nrow(mammals_data), "observations"))
@@ -218,36 +219,36 @@ par(mfrow = c(1, 1))
 # Uncomment and modify this section if you want to use full biomod2 workflow:
 
 # # Format data for biomod2
-# myRespName <- 'VulpesVulpes'
-# myResp <- mammals_data$VulpesVulpes
-# myRespXY <- mammals_data[, c('X_WGS84', 'Y_WGS84')]
-# 
-# # Create environmental raster (optional - for spatial projections)
-# # myExpl <- terra::rast(environmental_rasters)  # if you have raster files
-# 
-# # Format the data
-# myBiomodData <- BIOMOD_FormatingData(resp.var = myResp,
-#                                      expl.var = mammals_data[,c("bio3", "bio7", "bio11", "bio12")],
-#                                      resp.xy = myRespXY,
-#                                      resp.name = myRespName)
-# 
-# # Build models
-# myBiomodModelOut <- BIOMOD_Modeling(bm.format = myBiomodData,
-#                                     modeling.id = 'RedFoxModels',
-#                                     models = c('SRE', 'GLM', 'RF'),
-#                                     CV.strategy = 'random',
-#                                     CV.nb.rep = 2,
-#                                     CV.perc = 0.8,
-#                                     metric.eval = c('TSS', 'ROC'))
-# 
-# # Use modern biomod2 plotting functions
-# bm_PlotEvalMean(bm.out = myBiomodModelOut)
-# bm_PlotEvalBoxplot(bm.out = myBiomodModelOut)
-# 
-# # Plot response curves (replaces old response.plot)
-# bm_PlotResponseCurves(bm.out = myBiomodModelOut,
-#                       models.chosen = 'all',
-#                       fixed.var = 'median')
+myRespName <- 'VulpesVulpes'
+myResp <- mammals_data$VulpesVulpes
+myRespXY <- mammals_data[, c('X_WGS84', 'Y_WGS84')]
+
+# Create environmental raster (optional - for spatial projections)
+# myExpl <- terra::rast(environmental_rasters)  # if you have raster files
+
+# Format the data
+myBiomodData <- BIOMOD_FormatingData(resp.var = myResp,
+                                     expl.var = mammals_data[,c("bio3", "bio7", "bio11", "bio12")],
+                                     resp.xy = myRespXY,
+                                     resp.name = myRespName)
+
+# Build models
+myBiomodModelOut <- BIOMOD_Modeling(bm.format = myBiomodData,
+                                    modeling.id = 'RedFoxModels',
+                                    models = c('SRE', 'GLM', 'RF'),
+                                    CV.strategy = 'random',
+                                    CV.nb.rep = 2,
+                                    CV.perc = 0.8,
+                                    metric.eval = c('TSS', 'ROC'))
+
+# Use modern biomod2 plotting functions
+bm_PlotEvalMean(bm.out = myBiomodModelOut)
+bm_PlotEvalBoxplot(bm.out = myBiomodModelOut)
+
+# Plot response curves (replaces old response.plot)
+bm_PlotResponseCurves(bm.out = myBiomodModelOut,
+                      models.chosen = 'all',
+                      fixed.var = 'median')
 
 # =============================================================================
 # STEP 6: Summary and model comparison
@@ -272,3 +273,4 @@ cat("BIOCLIM 95% overlap:", overlap_95, "out of", sum(mammals_data$VulpesVulpes)
 
 cat("\n=== Analysis Complete ===\n")
 cat("All visualizations created successfully using modern biomod2 and ggplot2 functions!\n")
+
