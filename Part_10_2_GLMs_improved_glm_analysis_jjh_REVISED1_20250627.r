@@ -18,7 +18,8 @@ library(viridis)    # For better color palettes
 # library(xgboost)
 
 # Load the dataset
-mammals_data <- read.csv("mammals_and_bioclim_table.csv", row.names = 1)
+#mammals_data <- read.csv("mammals_and_bioclim_table.csv", row.names = 1)
+mammals_data <- read.csv("data/tabular/species/mammals_and_bioclim_table.csv", row.names = 1)
 
 # Data exploration and summary
 cat("=== Dataset Summary ===\n")
@@ -337,25 +338,86 @@ base_distribution_plot <- function(values, coords, title, is_binary = FALSE) {
 }
 
 # Create base R plots (uncomment if you prefer base R plotting)
-# par(mfrow = c(2, 2))
-# 
-# base_distribution_plot(mammals_data$VulpesVulpes, 
-#                       mammals_data[,c("X_WGS84", "Y_WGS84")],
-#                       "Original data", is_binary = TRUE)
-# 
-# base_distribution_plot(fitted(glm1), 
-#                       mammals_data[,c("X_WGS84", "Y_WGS84")],
-#                       "GLM with linear terms")
-# 
-# base_distribution_plot(fitted(glm2), 
-#                       mammals_data[,c("X_WGS84", "Y_WGS84")],
-#                       "GLM with quadratic terms")
-# 
-# base_distribution_plot(fitted(glm3), 
-#                       mammals_data[,c("X_WGS84", "Y_WGS84")],
-#                       "GLM with interactions")
-# 
-# par(mfrow = c(1, 1))
+par(mfrow = c(2, 2))
+
+base_distribution_plot(mammals_data$VulpesVulpes,
+                      mammals_data[,c("X_WGS84", "Y_WGS84")],
+                      "Original data", is_binary = TRUE)
+
+base_distribution_plot(fitted(glm1),
+                      mammals_data[,c("X_WGS84", "Y_WGS84")],
+                      "GLM with linear terms")
+
+base_distribution_plot(fitted(glm2),
+                      mammals_data[,c("X_WGS84", "Y_WGS84")],
+                      "GLM with quadratic terms")
+
+base_distribution_plot(fitted(glm3),
+                      mammals_data[,c("X_WGS84", "Y_WGS84")],
+                      "GLM with interactions")
+
+par(mfrow = c(1, 1))
 
 cat("\n=== Analysis Complete ===\n")
 cat("All plots generated successfully using modern functions!\n")
+
+
+#r GLM_b4 10.3, opts.label = 'fig_quarter_page', 
+# fig.cap = 'Figure 10. 3: 2D response curves for the different fitted models'
+
+glmModAIC <- stepAIC( glmStart, 
+                      glm.formula,
+                      data = mammals_data,
+                      direction = "both", trace = FALSE, 
+                      k = 2, 
+                      control=glm.control(maxit=100))
+
+glmModBIC <- stepAIC( glmStart, 
+                      glm.formula, 
+                      direction="both", trace=FALSE,
+                      k=log(nrow(mammals_data)),
+                      control=glm.control(maxit=100))
+
+
+rp <- response.plot2(models = c('glm1','glm2','glmModAIC','glmModBIC'),
+                     Data = mammals_data[,c("bio3", "bio7", "bio11", "bio12")],
+                     show.variables = c("bio3",  "bio7", "bio11", "bio12"),
+                     fixed.var.metric = 'mean', plot = FALSE, use.formal.names = TRUE)
+
+gg.rp <- ggplot(rp, aes(x = expl.val, y = pred.val, lty = pred.name)) +
+  geom_line() + ylab("prob of occ") + xlab("") + 
+  rp.gg.theme + 
+  facet_grid(~ expl.name, scales = 'free_x')
+
+print(gg.rp)
+
+# r GLM_b5 10.4, opts.label = 'fig_quarter_page', fig.cap = 'Figure 10. 4: Bivariate response curves from the model glmModAIC for four predictor variables.'
+
+rp.2D <- response.plot2( models = c('glmModAIC'),
+                         Data = mammals_data[,c("bio3", "bio7", "bio11", "bio12")],
+                         show.variables = c("bio3",  "bio7", "bio11", "bio12"),
+                         fixed.var.metric = 'median', 
+                         do.bivariate=T,
+                         plot = FALSE, use.formal.names = TRUE )
+
+gg.rp.2D <- ggplot(rp.2D, aes(x = expl1.val, y = expl2.val, fill = pred.val)) +
+  geom_raster() + rp.gg.theme  + ylab("") + xlab("") + theme(legend.title = element_text()) +
+  scale_fill_gradient(name = "prob of occ.", low = "#f0f0f0", high = "#000000") + 
+  facet_grid(expl2.name ~ expl1.name, scales = 'free')
+
+print(gg.rp.2D)
+
+# r code_10.2_Generalized_Linear_Models_GLM_b6}
+anova(glmModAIC)
+
+# r GLM_b7 10.5, opts.label = 'fig_half_page', fig.cap = 'Figure 10. 5: Observed (black=presence, light gray= absence) and potential distribution of red fox extracted from glmModAIC and glmModBIC models. 
+# The gray scale of predictions shows habitat suitability values between 0 (light, unsuitable) and 1 (dark, highly suitable).'}
+
+par(mfrow=c(2,2))
+
+level.plot(mammals_data$VulpesVulpes, XY=mammals_data[,c("X_WGS84", "Y_WGS84")], color.gradient = "grey", cex=0.3,level.range=c(0,1), show.scale=F, title="Original data")
+
+level.plot(fitted(glmModAIC), XY=mammals_data[,c("X_WGS84", "Y_WGS84")], color.gradient = "grey", cex=0.3, level.range=c(0,1), show.scale=F, title="Stepwise GLM with AIC")
+
+level.plot(fitted(glmModBIC), XY=mammals_data[,c("X_WGS84", "Y_WGS84")], color.gradient = "grey", cex=0.3,level.range=c(0,1), show.scale=F, title="Stepwise GLM with BIC")
+
