@@ -21,22 +21,22 @@ mammals_data <- read.csv("data/tabular/species/mammals_and_bioclim_table.csv", r
 
 head(mammals_data)
 
-<<<<<<< Updated upstream
-=======
-#Deprecated
->>>>>>> Stashed changes
-# pred_BIOCLIM = sre(Response = mammals_data$VulpesVulpes, 
-#                    Explanatory = mammals_data[,c("bio3", "bio7", "bio11", "bio12")], 
-#                    NewData = mammals_data[,c("bio3", "bio7", "bio11", "bio12")], 
-#                    Quant = 0)
-<<<<<<< Updated upstream
-=======
-
-pred_BIOCLIM = bm_SRE(resp.var = mammals_data$VulpesVulpes,
-                   expl.var = mammals_data[,c("bio3", "bio7", "bio11", "bio12")],
-                   new.env = mammals_data[,c("bio3", "bio7", "bio11", "bio12")],
-                   quant = 0)
->>>>>>> Stashed changes
+# <<<<<<< Updated upstream
+# =======
+# #Deprecated
+# >>>>>>> Stashed changes
+# # pred_BIOCLIM = sre(Response = mammals_data$VulpesVulpes, 
+# #                    Explanatory = mammals_data[,c("bio3", "bio7", "bio11", "bio12")], 
+# #                    NewData = mammals_data[,c("bio3", "bio7", "bio11", "bio12")], 
+# #                    Quant = 0)
+# <<<<<<< Updated upstream
+# =======
+# 
+# pred_BIOCLIM = bm_SRE(resp.var = mammals_data$VulpesVulpes,
+#                    expl.var = mammals_data[,c("bio3", "bio7", "bio11", "bio12")],
+#                    new.env = mammals_data[,c("bio3", "bio7", "bio11", "bio12")],
+#                    quant = 0)
+# >>>>>>> Stashed changes
 
 # Revised using bm_SRE()
 

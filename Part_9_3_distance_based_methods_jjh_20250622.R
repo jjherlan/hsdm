@@ -31,6 +31,7 @@ level.plot(en$li[,1], XY=mammals_data[,c("X_WGS84", "Y_WGS84")],
            color.gradient = "grey", cex=0.3,show.scale=F, title="ENFA")
 
 roc_enfa <- roc(mammals_data$VulpesVulpes, en$li[,1])
+
 threshold_enfa <- coords(roc_enfa, "best", ret=c("threshold"))
 
 Pred01 = as.numeric(en$li[,1] > threshold_enfa)
